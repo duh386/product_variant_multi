@@ -1,0 +1,171 @@
+<template>
+	
+	<t t-name="SelectCreatePopup_order">
+    <div t-att-id="widget.element_id">
+        <table style="width:100%">
+            <tr style="width:100%">
+                <td style="width:100%">
+                    <div t-att-id="widget.element_id + '_search'" style="width:100%"></div>
+                </td>
+            </tr>
+            <tr style="width:100%">
+                <td style="width:100%">
+                    <div t-att-id="widget.element_id + '_view_list'" style="width:100%"></div>
+                </td>
+            </tr>
+        </table>
+        <div t-att-id="widget.element_id + '_view_form'" style="width:100%"></div>
+    </div>
+</t>
+
+<t t-name="SelectCreatePopup_order.search.buttons">
+    <!--<button type="button" class="oe_button oe_selectcreatepopup-search-select" disabled="disabled">Select</button>-->
+    <button type="button" class="oe_button oe_selectcreatepopup-search-add" disabled="disabled">Добавить</button>
+    <button type="button" class="oe_button oe_selectcreatepopup-search-close">Закрыть</button>
+</t>
+
+<t t-name="SelectCreatePopup_order.notify_area">
+	<tr><td>
+    <div class="order_product_notify_area"></div>
+    </td></tr>
+</t>
+
+<table t-name="ListView_order_form" class="oe-listview-content our_class">
+    <t t-set="columns_count" t-value="visible_columns.length + (options.selectable ? 1 : 0) + (options.deletable ? 1 : 0) + (options.isClarkGable ? 1 : 0)"/>
+    <thead class="ui-widget-header">
+        <tr t-if="options.action_buttons !== false or options.pager !== false">
+            <th t-att-colspan="columns_count">
+                <table>
+                    <tr>
+                        <td t-if="!no_leaf and options.action_buttons !== false" class="oe-actions">
+                            <button type="button" class="oe_button oe-list-add"
+                                    t-if="options.addable">
+                                <t t-esc="options.addable"/>
+                            </button>
+                            <button type="button" class="oe_button oe-list-delete"
+                                    t-if="options.selectable and options.deletable">
+                                Удалить
+                            </button>
+                        </td>
+                        <t t-call="Listview_order_form.navigation.button"/>
+                    </tr>
+                </table>
+            </th>
+        </tr>
+        <tr t-if="options.header" class="oe-listview-header-columns" style="display: none;">
+            <t t-foreach="columns" t-as="column">
+                <th t-if="column.meta">
+                    <t t-esc="column.string"/>
+                </th>
+            </t>
+            <th t-if="options.selectable" width="1"  >
+                <input type="checkbox" class="all-record-selector"/> </th>
+            <th t-if="options.isClarkGable" width="1"> </th>
+            <t t-foreach="columns" t-as="column">
+                <th t-if="!column.meta and column.invisible !== '1'" t-att-data-id="column.id"
+                    t-att-class="((options.sortable and column.tag !== 'button') ? 'oe-sortable' : null)">
+                    <t t-if="column.tag !== 'button'"
+                        ><t t-esc="column.string"/></t>
+                </th>
+            </t>
+            <th t-if="options.deletable" width="1"/>
+        </tr>
+    </thead>
+    <tfoot class="ui-widget-header" style="display:none;">
+        <tr>
+            <td t-if="options.selectable"/>
+            <td t-if="options.isClarkGable"/>
+            <td t-foreach="aggregate_columns" t-as="column" class="oe-list-footer oe-number"
+                t-att-data-field="column.id" t-att-title="column.label">
+            </td>
+            <td t-if="options.deletable"/>
+        </tr>
+        <tr>
+            <t t-call="Listview.navigation.button"/>
+        </tr>
+    </tfoot>
+</table>
+<th t-name="Listview_order_form.navigation.button" t-if="!no_leaf and options.pager !== false"
+        class="oe-list-pager" t-att-colspan="columns_count" style="display: none;">
+    <t t-call="ViewPager">
+        <span class="oe-pager-state">
+        </span>
+    </t>
+</th>
+    
+<t t-name="SelectionOrder">
+    <select
+        t-att-name="widget.name"
+        t-att-id="widget.element_id"
+        t-attf-class="field_#{widget.type} multi_tmpl_id">
+        <t t-foreach="widget.values" t-as="option">
+            <option><t t-esc="option[1]"/></option>
+        </t>
+    </select>
+    
+    <table id="multi_select_block">
+        <tbody>
+            <tr>
+                <td><label for="multi_product_qty">Количество</label></td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="text" id="multi_product_qty" size="5" /></td>
+                <td><button class="oe_button" id="button_add_multi">Добавить</button></td>
+            </tr>
+        </tbody>
+    </table>
+</t>
+
+<t t-name="SelectionCreateProduct">
+    <select
+        t-att-name="widget.name"
+        t-att-id="widget.element_id"
+        t-attf-class="field_#{widget.type} select-create-product">
+        <t t-foreach="widget.values" t-as="option">
+            <option><t t-esc="option[1]"/></option>
+        </t>
+    </select>
+</t>
+<!--
+<t t-name="SelectionOrder.dimensions">
+    <t t-foreach="dimensions" t-as="dimension">
+        <tr>
+            <td>
+                <label t-att-for="'dim_'+dimension.id"><t t-esc="dimension.string"/></label>
+            </td>
+            <td>
+                <select t-att-id="'dim_'+dimension.id" class="multi_form_dimension">
+                    <option value="0"></option>
+                    <t t-foreach="dimension.options" t-as="option">
+                        <option t-att-value="option.id"><t t-esc="option.value"/></option>
+                    </t>
+                </select>
+            </td>
+        </tr>
+    </t>
+</t>
+
+<t t-name="SelectionOrder.dimensions.labels">
+    <t t-foreach="dimensions" t-as="dimension">
+        <td class="dimension_td">
+            <label t-att-for="'dim_'+dimension.id"><t t-esc="dimension.string"/></label>
+        </td>
+    </t>
+</t>
+    
+<t t-name="SelectionOrder.dimensions.values">
+    <t t-foreach="dimensions" t-as="dimension">
+        <td class="dimension_td">
+            <select t-att-id="'dim_'+dimension.id" class="multi_form_dimension">
+                <option value="0"></option>
+                <t t-foreach="dimension.options" t-as="option">
+                    <option t-att-value="option.id"><t t-esc="option.value"/></option>
+                </t>
+            </select>
+        </td>
+    </t>
+</t>    
+-->
+</template>

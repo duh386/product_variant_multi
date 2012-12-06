@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+    <!--- MRP BOM data -->
+        <record id="mrp_bom_form_view_tpl" model="ir.ui.view">
+            <field name="name">mrp.bom.form.view.tpl</field>
+            <field name="model">mrp.bom</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="mrp.mrp_bom_form_view" />
+            <field name="arch" type="xml">
+                <data>
+                     <field name="product_id" position="replace">
+                         <field name="template_id" string="Шаблон производимого продукта" on_change="onchange_template_id(template_id, name, context)" />
+                     </field>
+                     <field name="routing_id" position="after">
+                         <field name="count_rule"/>
+                     </field>
+                     
+					 <xpath expr="//tree[@string='Components']/field[@name='product_id']" position="replace">
+                         <field name="template_id" on_change="onchange_template_id(template_id, 0)" select="1" />                    
+                     </xpath>
+            	</data>
+            </field>
+        </record>
+        
+        <record id="mrp_bom_tree_view_tpl" model="ir.ui.view">
+            <field name="name">mrp.bom.tree.view.tpl</field>
+            <field name="model">mrp.bom</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="mrp.mrp_bom_tree_view" />
+            <field name="arch" type="xml">
+                <data>
+                     <field name="product_id" position="replace">
+                         <field name="template_id" />
+                     </field>
+            	</data>
+            </field>
+        </record>
+        
+        <record id="mrp_bom_search_view_tpl" model="ir.ui.view">
+            <field name="name">mrp.bom.search.view.tpl</field>
+            <field name="model">mrp.bom</field>
+            <field name="type">search</field>
+            <field name="inherit_id" ref="mrp.view_mrp_bom_filter" />
+            <field name="arch" type="xml">
+                <data>
+                     <field name="product_id" position="replace">
+                         <field name="template_id" />
+                     </field>
+            	</data>
+            </field>
+        </record>
+        
+        
+    <!-- MRP Production data -->   
+    
+	    <record id="detail_product_production" model="ir.actions.act_window">
+            <field name="name">Задать характеристики продукта</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">detail.product.production</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    
+     
+    	<record id="mrp_production_form_view_multi" model="ir.ui.view">
+			<field name="name">mrp.production.form.view.multi</field>
+			<field name="model">mrp.production</field>
+			<field name="type">form</field>
+			<field name="inherit_id" ref="mrp.mrp_production_form_view" />
+			<field name="arch" type="xml">
+				<data>
+					<field name="product_id" position="replace">
+						<field name="template_id" on_change="template_id_change(template_id)" domain="[('supply_method','=','produce')]"/>
+						<button name="%(detail_product_production)d" states="draft"
+	                        string="Задать характеристики" groups="base.group_extended" icon="terp-stock_effects-object-colorize" type="action"
+	                        context="{}" />
+						<field name="product_id" readonly="1" />
+						<newline />
+					</field>
+					
+					<field name="product_qty" position="after">
+						<button type="object" name="calc_product_count" string="Расчет кол-ва" />	
+						<!--<field name="calculated_rule" />-->
+					</field>
+					         
+					<xpath expr="//field[@name='move_lines2']" position="after">
+						<field name="tmpl_id" widget="multi_template" related_field="move_lines" />
+					</xpath>
+					<!--
+					<xpath expr="//field[@name='move_lines']/tree/field[@name='product_id']" position="after">
+						<field name="params" />
+					</xpath>
+					
+					<xpath expr="/form/notebook/page[@string='Finished Products']/field[@name='move_created_ids']/tree/field[@name='product_id']" position="after">
+						<field name="params" />
+					</xpath>
+					-->
+					<xpath expr="//button[@string='Produce']" position="replace">
+						<button name="%(mrp.act_mrp_product_produce)d" states="in_production" string="Produce" icon="gtk-ok" type="action" context="{'active_id': active_id}"/>
+					</xpath>
+				</data>
+			</field>
+		</record>
+        
+    	<record id="mrp_production_product_form_view_multi" model="ir.ui.view">
+			<field name="name">mrp.production.product.form.view.multi</field>
+			<field name="model">mrp.production.product.line</field>
+			<field name="type">form</field>
+			<field name="inherit_id" ref="mrp.mrp_production_product_form_view" />
+			<field name="arch" type="xml">
+				<data>	            
+					<field name="product_id" position="replace">
+						<field name="template_id" on_change="onchange_product_id('', template_id)" />
+						<field name="product_id" on_change="onchange_product_id(product_id, '')" />	
+					</field>
+				</data>
+			</field>
+		</record>
+		
+    	<record id="mrp_production_product_tree_view_multi" model="ir.ui.view">
+			<field name="name">mrp.production.product.tree.view.multi</field>
+			<field name="model">mrp.production.product.line</field>
+			<field name="type">tree</field>
+			<field name="inherit_id" ref="mrp.mrp_production_product_tree_view" />
+			<field name="arch" type="xml">
+				<data>	            
+					<field name="product_id" position="before">			
+						<field name="template_id" />
+					</field>
+					<field name="product_id" position="after">
+						<button name="%(detail_product_production)d"
+                        string="Задать характеристики" groups="base.group_extended" icon="terp-stock_effects-object-colorize" type="action"
+                        context="{}" 
+                    	/>
+						<field name="params" />
+					</field>
+				</data>
+			</field>
+		</record>
+		
+        <record id="mrp_production_tree_view_multi" model="ir.ui.view">
+            <field name="name">mrp.production.tree.view.multi</field>
+            <field name="model">mrp.production</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
+            <field name="arch" type="xml">
+                <data>
+                    <field name="product_id" position="after">
+                        <field name="params" />
+                    </field>
+                </data>
+            </field>
+        </record>
+        
+        
+        <record id="move_created_ids_remove" model="ir.ui.view">
+            <field name="name">move.created.ids.remove</field>
+            <field name="model">mrp.production</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//field[@name='move_lines']" position="replace">
+                    	<field colspan="2" name="move_lines" nolabel="1" widget="one2many_list"
+	                        mode="tree,form" height="275" domain="[('state','&lt;&gt;', ('done', 'cancel'))]" 
+	                    	context="{'tree_view_ref': 'product_variant_multi.stock_move_tree_move_lines'}"/>                   
+                    </xpath>
+                    <xpath expr="//field[@name='move_lines2']" position="replace">
+                    	<field colspan="2" name="move_lines2" nolabel="1"  domain="[('state','in', ('done', 'cancel'))]"
+                            widget="one2many_list" mode="tree,form" height="275"
+	                    	context="{'tree_view_ref': 'product_variant_multi.stock_move_tree_move_lines2'}"/>                   
+                    </xpath>
+                    <xpath expr="//field[@name='move_created_ids']" position="replace">
+                    	<field colspan="2" name="move_created_ids" nolabel="1" widget="one2many_list"
+                            mode="tree,form" height="275" domain="[('state','&lt;&gt;', ('done', 'cancel'))]"
+	                    	context="{'tree_view_ref': 'product_variant_multi.stock_move_tree_move_created_ids'}"/>                   
+                    </xpath>
+                    <xpath expr="//field[@name='move_created_ids2']" position="replace">
+                    	<field colspan="2" name="move_created_ids2" nolabel="1"  domain="[('state','in', ('done', 'cancel'))]"
+                            widget="one2many_list" mode="tree,form" height="275"
+	                    	context="{'tree_view_ref': 'product_variant_multi.stock_move_tree_move_created_ids2'}"/>                   
+                    </xpath>
+                </data>
+            </field>
+        </record>
+		
+    </data>
+</openerp>

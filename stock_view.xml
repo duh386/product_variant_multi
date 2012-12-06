@@ -1,0 +1,361 @@
+<?xml version="1.0" ?>
+<openerp>
+    <data>
+    	<!--
+        <record id="view_move_tree_reception_picking_multi" model="ir.ui.view">
+            <field name="name">view.move.tree.reception.picking.multi</field>
+            <field name="model">stock.move</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="stock.view_move_tree_reception_picking" />
+            <field name="arch" type="xml">
+                <data>
+                    <field name="product_id" position="after">
+                        <field name="params" />                        
+                    </field>
+                </data>
+            </field>
+        </record>-->
+        
+        <record id="view_picking_in_form_inherit" model="ir.ui.view">
+            <field name="name">view.picking.in.form.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="stock.view_picking_in_form" />
+            <field name="arch" type="xml">
+				<xpath expr="//field[@name='move_lines']" position="after">
+					<field name="tmpl_id" widget="multi_template" related_field="move_lines" />
+				</xpath>
+				<field name="move_lines" position="replace">
+					<field colspan="4" name="move_lines" nolabel="1" widget="one2many_list" context="{'address_in_id': address_id, 'picking_type': type, 'tree_view_ref': 'product_variant_multi.stock_move_tree_picking_in_move_lines'}" />
+				</field>
+			</field>
+        </record>
+        
+        <record id="view_picking_out_form_inherit" model="ir.ui.view">
+            <field name="name">view.picking.out.form.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="stock.view_picking_out_form" />
+            <field name="arch" type="xml">
+				<xpath expr="//field[@name='move_lines']" position="after">
+					<field name="tmpl_id" widget="multi_template" related_field="move_lines" />
+				</xpath>
+				<field name="move_lines" position="replace">
+					<field colspan="4" name="move_lines" nolabel="1" widget="one2many_list" context="{'address_out_id': address_id, 'picking_type': type, 'tree_view_ref': 'product_variant_multi.stock_move_tree_picking_out_move_lines'}" />
+				</field>
+			</field>
+        </record>
+
+        <record id="view_picking_form_inherit3" model="ir.ui.view">
+            <field name="name">view.picking.form.inherit3</field>
+            <field name="model">stock.picking</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="stock.view_picking_form" />
+            <field name="arch" type="xml">
+                <data>
+					<xpath expr="//field[@name='move_lines']" position="after">
+						<field name="to_production" />
+						<newline/>
+						<field name="tmpl_id" widget="multi_template" related_field="move_lines" />
+					</xpath>
+                    <field name="move_lines" position="replace">
+						<field colspan="4" name="move_lines" nolabel="1" widget="one2many_list" context="{'address_in_id': address_id, 'tree_view_ref': 'product_variant_multi.stock_move_tree_picking_move_lines'}" />
+					</field>
+                </data>
+            </field>
+        </record>
+        <!--
+        <record id="view_move_tree_inherit3" model="ir.ui.view">
+            <field name="name">view.move.tree.inherit3</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="stock.view_move_tree" />
+            <field name="arch" type="xml">
+                <data>
+                    <field name="product_id" position="replace">
+                    	<field name="product_id" on_change="onchange_product_id_editable(product_id)" />
+                        <field name="params" />
+                    </field>
+                </data>
+            </field>
+        </record>
+        -->
+        <record id="stock_move_tree_move_lines" model="ir.ui.view">
+            <field name="name">stock.move.tree.move.lines</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree colors="blue:state == 'draft';black:state in ('picking_except','confirmed','ready','in_production');gray:state in ('cancel','done') " string="Потребляемые продукты">
+                    <field name="product_id" />
+                    <field name="params" />
+                    <field name="product_qty"/>
+                    <field name="product_uom"/>
+                    <field name="location_id"/>
+                    <field name="location_dest_id"/>
+                    <field name="state" invisible="1"/>
+                    <button name="%(stock.move_consume)d"
+                        string="Потребить продукты" type="action"
+                        icon="gtk-go-forward" context="{'consume': True}"
+                        states="draft,waiting,confirmed,assigned" />
+                    <button
+                           name="%(stock.track_line)d"
+                           string="Разделить в партии производства"
+                           type="action" icon="gtk-justify-fill"
+                           states="draft,waiting,confirmed,assigned" />
+                    <button name="%(stock.move_scrap)d"
+                        string="Бракованные продукты" type="action"
+                        icon="gtk-convert" context="{'scrap': True}"
+                        states="draft,waiting,confirmed,assigned"/>
+                </tree>
+            </field>
+        </record>
+        <!--
+        <record id="stock_move_tree_move_lines2" model="ir.ui.view">
+            <field name="name">stock.move.tree.move.lines2</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+               <tree colors="red:scrapped==True;blue:state == 'draft';black:state in('picking_except','confirmed','ready','in_production');gray:state == 'cancel' " editable="bottom" string="Потребленные продукты">
+                   <field name="product_id" readonly="1"/>
+                   <field name="params" />
+                   <field name="product_qty" readonly="1"/>
+                   <field name="product_uom" readonly="1"/>
+                   <field name="prodlot_id" context="{'product_id': product_id}"/>
+                   <field name="state" invisible="1"/>
+                   <field name="scrapped" invisible="1"/>
+                   <button
+                       name="%(stock.move_scrap)d"
+                       string="Бракованные продукты" type="action"
+                       icon="gtk-convert"
+                       states="done,cancel"/>
+               </tree>
+            </field>
+        </record>
+        
+        <record id="stock_move_tree_move_created_ids" model="ir.ui.view">
+            <field name="name">stock.move.tree.move.created.ids</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+               <tree string="Производимые продукты">
+                    <field name="product_id" />
+                    <field name="params" />
+                    <field name="product_qty"/>
+                    <field name="product_uom"/>
+                    <field name="state" invisible="1"/>
+                    <button name="%(stock.action_partial_move_server)d"
+                        string="Партии"
+                        type="action" states="confirmed,assigned"
+                        icon="gtk-justify-fill"/>
+                    <button name="%(stock.move_scrap)d"
+                        string="Бракованные продукты" type="action"
+                        icon="gtk-convert" context="{'scrap': True}"
+                        states="draft,waiting,confirmed,assigned" />
+               </tree>
+            </field>
+        </record>
+        
+        <record id="stock_move_tree_move_created_ids2" model="ir.ui.view">
+            <field name="name">stock.move.tree.move.created.ids2</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+            	<tree colors="red:scrapped==True;blue:state == 'draft';black:state in('picking_except','confirmed','ready','in_production');gray:state in('cancel','done') " string="Произведенные продукты">
+                   <field name="product_id" readonly="1"/>
+                   <field name="params" />
+                   <field name="product_qty" readonly="1"/>
+                   <field name="product_uom" readonly="1"/>
+                   <field name="location_dest_id"  readonly="1" widget="selection"/>
+                   <field name="prodlot_id" context="{'product_id': product_id}"/>
+                   <field name="scrapped" invisible="1"/>
+                   <field name="state" invisible="1"/>
+                   <button name="%(stock.track_line)d"
+                        string="Разделить по партиям производства" type="action" icon="gtk-justify-fill" states="done,cancel"/>
+                   <button name="%(stock.move_scrap)d"
+                       string="Бракованные продукты" type="action" icon="gtk-convert"
+                       states="done,cancel" />
+                </tree>
+            </field>
+        </record>
+        -->
+        <record id="stock_move_tree_picking_in_move_lines" model="ir.ui.view">
+            <field name="name">stock.move.tree.picking.in.move.lines</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree colors="grey:scrapped==True" string="Stock Moves">
+                    <field name="product_id" />
+                    <field name="params" />
+                    <field name="product_qty" />
+                    <field name="product_uom" string="UoM" />
+                    <button name="%(stock.move_scrap)d"
+                        string="Scrap Products" type="action"
+                        icon="gtk-convert" context="{'scrap': True}"
+                        states="draft,waiting,confirmed,assigned"
+                        groups="base.group_extended"/>
+                    <field name="scrapped" invisible="1"/>
+                    <field name="prodlot_id" groups="base.group_extended"/>
+                    <button
+                           name="%(stock.track_line)d"
+                           string="Split in production lots"
+                           groups="base.group_extended"
+                           type="action" icon="terp-stock_effects-object-colorize"
+                           states="draft,waiting,confirmed,assigned" />
+                    <field name="tracking_id" groups="base.group_extended"/>
+                    <button name="setlast_tracking" string="Put in current pack" type="object"
+                        groups="base.group_extended"
+                        icon="terp-stock_effects-object-colorize" attrs="{'invisible': [('tracking_id','&lt;&gt;',False)]}"
+                        states="draft,assigned,confirmed"/>
+                    <button name="%(stock.split_into)d" string="Put in a new pack" type="action"
+                        groups="base.group_extended"
+                        icon="terp-stock_effects-object-colorize"
+                        states="draft,assigned,confirmed"/>
+                    <field name="location_dest_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="stock_move_tree_picking_out_move_lines" model="ir.ui.view">
+            <field name="name">stock.move.tree.picking.out.move.lines</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+				<tree colors="grey:scrapped==True" string="Stock Moves">
+                    <field name="product_id" /> 
+                    <field name="params" />
+                    <field name="product_qty" on_change="onchange_quantity(product_id, product_qty, product_uom, product_uos)"/>
+                    <field name="product_uom" string="UoM"/>
+                    <field name="product_uos" groups="product.group_uos"/>
+                    <button name="%(stock.move_scrap)d"
+                        string="Scrap Products" type="action"
+                        icon="gtk-convert" context="{'scrap': True}"
+                        states="draft,waiting,confirmed,assigned" />
+                    <field name="scrapped" invisible="1"/>
+                    <field name="prodlot_id" groups="base.group_extended"/>
+                    <button name="%(stock.track_line)d" string="Split in production lots" type="action"
+                        icon="terp-stock_effects-object-colorize" attrs="{'invisible': [('prodlot_id','&lt;&gt;',False)]}"
+                        states="draft,assigned,confirmed"
+                        groups="base.group_extended"/>
+                    <field name="tracking_id" groups="base.group_extended"/>
+                    <button name="setlast_tracking" string="Put in current pack" type="object"
+                        attrs="{'invisible': [('tracking_id','&lt;&gt;',False)]}"
+                        groups="base.group_extended"
+                        icon="terp-stock_effects-object-colorize"
+                        states="draft,assigned,confirmed"/>
+                    <button name="%(stock.split_into)d" string="Put in a new pack" type="action"
+                        icon="terp-stock_effects-object-colorize"
+                        groups="base.group_extended"
+                        states="draft,assigned,confirmed"/>
+                    <field name="location_id"/>
+                    <field name="date"/>
+                    <field name="state"/>
+                    <button name="%(stock.action_partial_move_server)d" string="Process" type="action" states="confirmed,assigned" icon="gtk-go-forward"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="stock_move_tree_picking_move_lines" model="ir.ui.view">
+            <field name="name">stock.move.tree.picking.move.lines</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Stock Moves" colors="grey:scrapped==True">
+                    <!--<field name="template_id" on_change="onchange_template_id(template_id)" />-->
+                    <field name="product_id" />
+                    <field name="params" />
+                    <field name="product_qty" on_change="onchange_quantity(product_id, product_qty, product_uom, product_uos)"/>
+                    <field name="product_uom" string="UoM"/>
+                    <field name="product_uos" groups="product.group_uos"/>
+                    <button name="%(stock.move_scrap)d"
+                        string="Scrap Products" type="action"
+                        icon="gtk-convert" context="{'scrap': True}"
+                        states="draft,waiting,confirmed,assigned"
+                        groups="base.group_extended"/>
+                    <field name="scrapped" invisible="1"/>
+                    <field name="prodlot_id" groups="base.group_extended"/>
+                    <button
+                        name="%(stock.track_line)d"
+                        string="Split in production lots"
+                        groups="base.group_extended"
+                        type="action" icon="terp-stock_effects-object-colorize"
+                        states="draft,waiting,confirmed,assigned" />
+                    <field groups="base.group_extended" name="tracking_id"/>
+                    <button name="setlast_tracking" string="Put in current pack" type="object"
+                        attrs="{'invisible': [('tracking_id','&lt;&gt;',False)]}"
+                        icon="terp-stock_effects-object-colorize"
+                        groups="base.group_extended"
+                        states="draft,assigned,confirmed"/>
+                    <button name="%(stock.split_into)d" string="Put in a new pack" type="action"
+                        groups="base.group_extended"
+                        icon="terp-stock_effects-object-colorize"
+                        states="draft,assigned,confirmed"/>
+                    <field name="location_id"/>
+                    <field name="location_dest_id"/>
+                    <field name="date_expected" string="Date Expected"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- Form for stock_move -->
+        <!--
+        <record id="view_move_form_reception_picking_inherit" model="ir.ui.view">
+            <field name="name">view.move.form.reception.picking.inherit</field>
+            <field name="model">stock.move</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="stock.view_move_form_reception_picking" />
+            <field name="arch" type="xml">
+                <field name="product_id" position="replace">
+                    <field name="product_id" invisible="1" on_change="onchange_product_id_multi(template_id,location_id,location_dest_id, False)"/>               
+                	<field name="template_id" on_change="onchange_template_id(template_id)" />
+                	<field name="params" />
+            	</field>
+        	</field>
+        </record>
+        -->
+        
+        <record id="view_split_in_lots_multi" model="ir.ui.view">
+            <field name="name">view.split.in.lots.multi</field>
+            <field name="model">stock.move.split</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="stock.view_split_in_lots" />
+            <field name="arch" type="xml">
+                <data>
+                    <field name="product_id" position="after">
+                        <field name="parameters_values" />
+                    </field>
+                </data>
+            </field>
+        </record>        
+
+        <record id="view_production_lot_tree_multi" model="ir.ui.view">
+            <field name="name">view.production.lot.tree.multi</field>
+            <field name="model">stock.production.lot</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="stock.view_production_lot_tree" />
+            <field name="arch" type="xml">
+                <data>
+                    <field name="product_id" position="after">
+                        <field name="params" />
+                    </field>
+                </data>
+            </field>
+        </record> 
+        
+        <record id="view_production_lot_form_multi" model="ir.ui.view">
+            <field name="name">view.production.lot.form.multi</field>
+            <field name="model">stock.production.lot</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form" />
+            <field name="arch" type="xml">
+                <data>
+                    <field name="product_id" position="after">
+                        <field name="parameters_values" />
+                    </field>
+                </data>
+            </field>
+        </record> 
+        
+    </data>
+</openerp>

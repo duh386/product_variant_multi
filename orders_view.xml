@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<openerp>
+<data>
+
+	<record id="sale_order_multiple" model="ir.ui.view">
+	    <field name="name">sale.order.multiple</field>
+	    <field name="model">sale.order</field>
+	    <field name="type">form</field>
+	    <field name="inherit_id" ref="sale.view_order_form" />
+	    <field name="arch" type="xml">
+	        <data>
+            	<xpath expr="//field[@name='order_line']" position="after">
+            		<field name="tmpl_id" widget="multi_template" related_field="order_line" />
+            	</xpath>
+            	<!--
+            	<xpath expr="/form[@string='Sales Order']/notebook[@colspan='5']/page[@string='Sales Order']/field[@name='order_line']/tree/field[@name='name']" position="after">
+            		<field name="params" />
+            	</xpath>-->
+	        </data>
+	    </field>
+	</record>
+	
+	<record id="purchase_order_multiple" model="ir.ui.view">
+		<field name="name">purchase.order.multiple</field>
+		<field name="model">purchase.order</field>
+		<field name="type">form</field>
+		<field name="inherit_id" ref="purchase.purchase_order_form" />
+		<field name="arch" type="xml">
+			<data>	            
+				<xpath expr="//field[@name='order_line']" position="after">
+					<field name="tmpl_id" widget="multi_template" related_field="order_line" />
+				</xpath>
+				<field name="order_line" position="replace">
+					<field colspan="4" name="order_line" nolabel="1" context="{'tree_view_ref': 'product_variant_multi.purchase_order_line_tree_multi'}" />
+                </field>
+			</data>
+		</field>
+	</record>
+	
+    <record id="purchase_order_line_tree_multi" model="ir.ui.view">
+        <field name="name">purchase.order.line.tree.multi</field>
+        <field name="model">stock.move</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree string="Purchase Order Lines">
+                <field name="date_planned"/>
+                <field name="product_id"/>
+                <field name="params"/>
+                <field name="product_qty"/>
+                <field name="product_uom"/>
+                <field name="price_unit"/>
+                <field name="price_subtotal"/>
+            </tree>
+        </field>
+    </record>
+	
+</data>
+</openerp>
+		

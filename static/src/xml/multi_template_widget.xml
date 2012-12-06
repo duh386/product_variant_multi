@@ -1,0 +1,50 @@
+<template>
+    
+<t t-name="MultiTemplate">
+    <input
+    	type="text"
+        t-att-name="widget.name"
+        t-att-id="widget.element_id"
+        t-attf-class="field_#{widget.type} multi_tmpl_id"
+    />
+    
+    <table id="multi_select_block">
+        <tbody>
+            <tr>
+                <td><label for="multi_product_qty">Количество</label></td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="text" id="multi_product_qty" size="5" /></td>
+                <td><button class="oe_button" id="button_add_multi">Добавить</button></td>
+            </tr>
+        </tbody>
+    </table>
+</t>
+    
+<t t-name="MultiTemplate.dimensions.labels">
+    <t t-foreach="dimensions" t-as="dimension">
+        <td class="dimension_td">
+            <label t-att-for="'dim_'+dimension.id"><t t-esc="dimension.string"/></label>
+        </td>
+    </t>
+</t>
+    
+<t t-name="MultiTemplate.dimensions.values">
+    <t t-foreach="dimensions" t-as="dimension">
+        <td class="dimension_td">
+        	<!--
+            <select t-att-id="'dim_'+dimension.id" class="multi_form_dimension">
+                <option value="0"></option>
+                <t t-foreach="dimension.options" t-as="option">
+                    <option t-att-value="option.id"><t t-esc="option.value"/></option>
+                </t>
+            </select>
+            -->
+            <input type="text" t-att-id="'dim_'+dimension.id" size="8" class="multi_form_dimension" />
+        </td>
+    </t>
+</t>    
+
+</template>

@@ -1,0 +1,12 @@
+body div.order_product_notify_area{
+	height: 45px;
+	width: 250px;
+	overflow: auto;
+}
+
+body p.order_product_notify {
+	margin:0px;
+	padding:0px;
+	color: green;
+}
+
